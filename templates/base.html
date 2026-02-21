@@ -51,7 +51,7 @@
       <h5 class="mb-4">AI CRM</h5>
       <ul class="nav nav-pills flex-column mb-auto">
         <li class="nav-item">
-          <a href="{% url 'home' %}" class="nav-link px-2 py-2">
+          <a href="{% url 'dashboard' %}" class="nav-link px-2 py-2">
             Dashboard
           </a>
         </li>
@@ -82,6 +82,14 @@
           </a>
         </li>
       </ul>
+      <div class="border-top pt-3">
+        <form method="post" action="{% url 'logout' %}" class="mb-0">
+          {% csrf_token %}
+          <button type="submit" class="nav-link px-2 py-2 w-100 text-start border-0 bg-transparent" style="color: #9ca3af;">
+            Logout
+          </button>
+        </form>
+      </div>
     </nav>
 
     <!-- Main area -->
