@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-0">Offers</h2>
+    <small class="text-muted">Manage reusable marketing offers and their treatments.</small>
+  </div>
+  <div class="d-flex gap-2">
+    <!-- Placeholder buttons (wire later) -->
+    <button class="btn btn-primary btn-sm" disabled>Create Offer</button>
+    <button class="btn btn-outline-secondary btn-sm" disabled>Import</button>
+    <button class="btn btn-outline-secondary btn-sm" disabled>Export</button>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between mb-3">
+      <div class="d-flex gap-2">
+        <input type="text" class="form-control form-control-sm" placeholder="Search offers (placeholder)" style="width: 240px;" disabled>
+        <select class="form-select form-select-sm" style="width: 160px;" disabled>
+          <option>All statuses</option>
+        </select>
+      </div>
+      <div class="btn-group btn-group-sm" role="group">
+        <button class="btn btn-outline-secondary" disabled>Columns</button>
+        <button class="btn btn-outline-secondary" disabled>Filters</button>
+      </div>
+    </div>
+
+    {% if offers %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Description</th>
+              <th scope="col">Active</th>
+              <th scope="col">Created</th>
+              <th scope="col">Treatments</th>
+              <th scope="col" class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for offer in offers %}
+              <tr>
+                <td>
+                  <a href="{% url 'marketing:offer_detail' offer.pk %}" class="fw-semibold text-decoration-none">
+                    {{ offer.name }}
+                  </a>
+                </td>
+                <td class="text-muted">
+                  {{ offer.description|truncatechars:80 }}
+                </td>
+                <td>
+                  {% if offer.is_active %}
+                    <span class="badge text-bg-success">Active</span>
+                  {% else %}
+                    <span class="badge text-bg-secondary">Inactive</span>
+                  {% endif %}
+                </td>
+                <td class="text-muted">
+                  {{ offer.created_at|date:"Y-m-d H:i" }}
+                </td>
+                <td class="text-muted">
+                  {{ offer.treatments.count }} treatment{{ offer.treatments.count|pluralize }}
+                </td>
+                <td class="text-end">
+                  <div class="btn-group btn-group-sm">
+                    <a href="{% url 'marketing:offer_detail' offer.pk %}" class="btn btn-outline-primary">
+                      Open
+                    </a>
+                    <button class="btn btn-outline-secondary" disabled>Clone</button>
+                    <button class="btn btn-outline-secondary" disabled>More</button>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="text-muted mb-0">No offers yet. Create your first offer from admin for now.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
