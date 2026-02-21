@@ -1,0 +1,265 @@
+{% extends "base.html" %}
+{% load marketing_extras %}
+
+{% block content %}
+<div class="d-flex align-items-start justify-content-between mb-3">
+  <div>
+    <h3 class="mb-1">{{ plan.name }}</h3>
+    <p class="text-muted mb-0">{{ plan.description|default:"No description provided." }}</p>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'marketing:plan_update' plan.pk %}" class="btn btn-outline-primary">Edit Plan</a>
+    <a href="{% url 'marketing:plan_list' %}" class="btn btn-outline-secondary">Back</a>
+  </div>
+</div>
+
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'overview' %}active{% endif %}" href="{% url 'marketing:plan_detail' plan.pk %}?tab=overview">Overview</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'initiatives' %}active{% endif %}" href="{% url 'marketing:plan_detail' plan.pk %}?tab=initiatives">Initiatives</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'tactics' %}active{% endif %}" href="{% url 'marketing:plan_detail' plan.pk %}?tab=tactics">Tactics</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'budget' %}active{% endif %}" href="{% url 'marketing:plan_detail' plan.pk %}?tab=budget">Budget</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {% if tab == 'calendar' %}active{% endif %}" href="{% url 'marketing:plan_detail' plan.pk %}?tab=calendar">Calendar</a>
+  </li>
+</ul>
+
+{% if tab == 'overview' %}
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Status</div>
+          <div class="fw-semibold">{{ plan.get_status_display }}</div>
+          <div class="text-muted small mt-2">Dates</div>
+          <div>{{ plan.start_date|date:"d-M-Y"|default:"-" }} → {{ plan.end_date|date:"d-M-Y"|default:"-" }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <div class="text-muted small">Planned Budget</div>
+              <div class="fs-5 fw-semibold">${{ planned_total|floatformat:2 }}</div>
+            </div>
+            <div class="col-md-4">
+              <div class="text-muted small">Actual Spend</div>
+              <div class="fs-5 fw-semibold">${{ actual_total|floatformat:2 }}</div>
+            </div>
+            <div class="col-md-4">
+              <div class="text-muted small">Variance</div>
+              <div class="fs-5 fw-semibold">${{ variance_total|floatformat:2 }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% elif tab == 'initiatives' %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="mb-0">Initiatives</h5>
+    <a href="{% url 'marketing:initiative_create' plan.pk %}" class="btn btn-primary">Add Initiative</a>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Status</th>
+              <th>Dates</th>
+              <th class="text-end">Planned</th>
+              <th class="text-end">Actual</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for initiative in initiatives %}
+              <tr>
+                <td class="fw-semibold">{{ initiative.name }}</td>
+                <td><span class="badge text-bg-light border">{{ initiative.get_status_display }}</span></td>
+                <td>{{ initiative.start_date|date:"d-M-Y"|default:"-" }} → {{ initiative.end_date|date:"d-M-Y"|default:"-" }}</td>
+                <td class="text-end">${{ initiative.planned_amount|floatformat:2 }}</td>
+                <td class="text-end">${{ initiative.actual_amount|floatformat:2 }}</td>
+                <td class="text-end">
+                  <a href="{% url 'marketing:initiative_update' initiative.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                  <a href="{% url 'marketing:initiative_delete' initiative.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                  <a href="{% url 'marketing:tactic_create' initiative.pk %}" class="btn btn-sm btn-outline-success">Add Tactic</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-muted">No initiatives yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+{% elif tab == 'tactics' %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="mb-0">Tactics</h5>
+    {% if initiatives %}
+      <a href="{% url 'marketing:tactic_create' initiatives.0.pk %}" class="btn btn-primary">Add Tactic</a>
+    {% else %}
+      <span class="text-muted">Create an initiative first.</span>
+    {% endif %}
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Initiative</th>
+              <th>Status</th>
+              <th>Dates</th>
+              <th class="text-end">Planned</th>
+              <th class="text-end">Actual</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for tactic in tactics %}
+              <tr>
+                <td class="fw-semibold">{{ tactic.name }}</td>
+                <td>{{ tactic.initiative.name }}</td>
+                <td><span class="badge text-bg-light border">{{ tactic.get_status_display }}</span></td>
+                <td>{{ tactic.start_date|date:"d-M-Y"|default:"-" }} → {{ tactic.end_date|date:"d-M-Y"|default:"-" }}</td>
+                <td class="text-end">${{ tactic.planned_amount|floatformat:2 }}</td>
+                <td class="text-end">${{ tactic.actual_amount|floatformat:2 }}</td>
+                <td class="text-end">
+                  <a href="{% url 'marketing:tactic_update' tactic.pk %}" class="btn btn-sm btn-outline-primary">Edit</a>
+                  <a href="{% url 'marketing:tactic_delete' tactic.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="7" class="text-center text-muted">No tactics yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+{% elif tab == 'budget' %}
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total Planned</div>
+          <div class="fs-5 fw-semibold">${{ planned_total|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Total Actual</div>
+          <div class="fs-5 fw-semibold">${{ actual_total|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <div class="text-muted small">Variance</div>
+          <div class="fs-5 fw-semibold">${{ variance_total|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>Initiative</th>
+              <th class="text-end">Planned</th>
+              <th class="text-end">Actual</th>
+              <th class="text-end">Variance</th>
+              <th class="text-end">Tactics Planned</th>
+              <th class="text-end">Tactics Actual</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for initiative in initiatives %}
+              <tr>
+                <td class="fw-semibold">{{ initiative.name }}</td>
+                <td class="text-end">${{ initiative.planned_amount|floatformat:2 }}</td>
+                <td class="text-end">${{ initiative.actual_amount|floatformat:2 }}</td>
+                <td class="text-end">${{ initiative.tactics_variance|floatformat:2 }}</td>
+                <td class="text-end">${{ initiative.tactics_planned_total|floatformat:2 }}</td>
+                <td class="text-end">${{ initiative.tactics_actual_total|floatformat:2 }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center text-muted">No initiatives yet.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+{% elif tab == 'calendar' %}
+  <div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="mb-0">{{ calendar_month|date:"F Y" }}</h5>
+    <div class="text-muted small">Tactics scheduled in this month.</div>
+  </div>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle text-center">
+          <thead class="table-light">
+            <tr>
+              <th>Sun</th>
+              <th>Mon</th>
+              <th>Tue</th>
+              <th>Wed</th>
+              <th>Thu</th>
+              <th>Fri</th>
+              <th>Sat</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for week in calendar_weeks %}
+              <tr>
+                {% for day in week %}
+                  <td class="text-start {% if day.month != calendar_month.month %}text-muted bg-light{% endif %}" style="height: 120px;">
+                    <div class="fw-semibold small">{{ day|date:"d" }}</div>
+                    {% for tactic in day_tactics|get_item:day %}
+                      <div class="badge text-bg-primary d-block text-start text-truncate mb-1">
+                        {{ tactic.name }}
+                      </div>
+                    {% empty %}
+                    {% endfor %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

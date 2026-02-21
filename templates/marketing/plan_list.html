@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+  .plan-row {
+    transition: background-color 0.15s ease-in-out;
+    cursor: pointer;
+  }
+  .plan-row:hover {
+    background-color: #f1f5f9;
+  }
+</style>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('search-input');
+    let searchTimeout;
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(function() {
+          document.getElementById('plan-filter-form').submit();
+        }, 300);
+      });
+    }
+  });
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-between mb-3">
+  <div>
+    <h3 class="mb-0">Plans</h3>
+    <p class="text-muted mb-0">Strategic marketing plans and budget rollups.</p>
+  </div>
+  <a href="{% url 'marketing:plan_create' %}" class="btn btn-primary">New Plan</a>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between mb-3">
+      <div class="d-flex gap-2">
+        <form method="get" id="plan-filter-form" class="d-flex gap-2">
+          <div class="input-group" style="width: 300px;">
+            <input type="text" id="search-input" name="search" class="form-control form-control-sm" placeholder="Search plans..." value="{{ search_query }}">
+          </div>
+          <select name="status" class="form-select form-select-sm" style="width: 160px;" onchange="this.form.submit()">
+            <option value="">All statuses</option>
+            {% for value, label in status_choices %}
+              <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Status</th>
+            <th>Start</th>
+            <th>End</th>
+            <th class="text-end">Total Budget</th>
+            <th class="text-end">Planned</th>
+            <th class="text-end">Actual</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for plan in plans %}
+            <tr class="plan-row" data-href="{% url 'marketing:plan_detail' plan.pk %}" onclick="window.location=this.dataset.href">
+              <td>
+                <a href="{% url 'marketing:plan_detail' plan.pk %}" class="fw-semibold text-decoration-none">
+                  {{ plan.name }}
+                </a>
+              </td>
+              <td>
+                <span class="badge text-bg-light">{{ plan.get_status_display }}</span>
+              </td>
+              <td>{{ plan.start_date|date:"d-M-Y"|default:"-" }}</td>
+              <td>{{ plan.end_date|date:"d-M-Y"|default:"-" }}</td>
+              <td class="text-end">${{ plan.total_budget|floatformat:2 }}</td>
+              <td class="text-end">${{ plan.initiatives_planned_total|floatformat:2 }}</td>
+              <td class="text-end">${{ plan.initiatives_actual_total|floatformat:2 }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="7" class="text-center text-muted">No plans found.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

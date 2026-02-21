@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h4 class="mb-3">{{ form_title }}</h4>
+    <form method="post">
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Initiative</label>
+          {{ form.initiative }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Status</label>
+          {{ form.status }}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Name</label>
+          {{ form.name }}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Description</label>
+          {{ form.description }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Start Date</label>
+          {{ form.start_date }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">End Date</label>
+          {{ form.end_date }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Planned Amount</label>
+          {{ form.planned_amount }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Actual Amount</label>
+          {{ form.actual_amount }}
+        </div>
+      </div>
+      <div class="mt-4 d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a href="{% url 'marketing:plan_list' %}" class="btn btn-outline-secondary">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
