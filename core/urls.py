@@ -18,13 +18,12 @@ from django.contrib import admin
 from django.http import HttpResponse
 from django.urls import path
 
-urlpatterns = [
-    path('admin/', admin.site.urls),
-]
 
 def home(request):
     return HttpResponse("Home OK")
 
+
 urlpatterns = [
     path("", home, name="home"),
+    path("admin/", admin.site.urls),
 ]

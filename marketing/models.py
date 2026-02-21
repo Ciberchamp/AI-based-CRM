@@ -11,6 +11,7 @@ class Offer(models.Model):
     code = models.CharField(max_length=50, unique=True)
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="DRAFT")
     start_date = models.DateField(null=True, blank=True)
     end_date = models.DateField(null=True, blank=True)
