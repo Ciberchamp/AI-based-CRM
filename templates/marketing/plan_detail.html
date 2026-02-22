@@ -37,8 +37,20 @@
       <div class="card shadow-sm">
         <div class="card-body">
           <div class="text-muted small">Status</div>
-          <div class="fw-semibold">{{ plan.get_status_display }}</div>
-          <div class="text-muted small mt-2">Dates</div>
+          <div class="mt-1">
+            {% if plan.status == 'DRAFT' %}
+              <span class="badge text-bg-secondary">Draft</span>
+            {% elif plan.status == 'PLANNED' %}
+              <span class="badge text-bg-info">Planned</span>
+            {% elif plan.status == 'ACTIVE' %}
+              <span class="badge text-bg-success">Active</span>
+            {% elif plan.status == 'COMPLETED' %}
+              <span class="badge text-bg-primary">Completed</span>
+            {% else %}
+              <span class="badge text-bg-light">{{ plan.get_status_display }}</span>
+            {% endif %}
+          </div>
+          <div class="text-muted small mt-3">Dates</div>
           <div>{{ plan.start_date|date:"d-M-Y"|default:"-" }} → {{ plan.end_date|date:"d-M-Y"|default:"-" }}</div>
         </div>
       </div>
@@ -88,7 +100,19 @@
             {% for initiative in initiatives %}
               <tr>
                 <td class="fw-semibold">{{ initiative.name }}</td>
-                <td><span class="badge text-bg-light border">{{ initiative.get_status_display }}</span></td>
+                <td>
+                  {% if initiative.status == 'DRAFT' %}
+                    <span class="badge text-bg-secondary">Draft</span>
+                  {% elif initiative.status == 'PLANNED' %}
+                    <span class="badge text-bg-info">Planned</span>
+                  {% elif initiative.status == 'ACTIVE' %}
+                    <span class="badge text-bg-success">Active</span>
+                  {% elif initiative.status == 'COMPLETED' %}
+                    <span class="badge text-bg-primary">Completed</span>
+                  {% else %}
+                    <span class="badge text-bg-light">{{ initiative.get_status_display }}</span>
+                  {% endif %}
+                </td>
                 <td>{{ initiative.start_date|date:"d-M-Y"|default:"-" }} → {{ initiative.end_date|date:"d-M-Y"|default:"-" }}</td>
                 <td class="text-end">${{ initiative.planned_amount|floatformat:2 }}</td>
                 <td class="text-end">${{ initiative.actual_amount|floatformat:2 }}</td>
@@ -138,7 +162,19 @@
               <tr>
                 <td class="fw-semibold">{{ tactic.name }}</td>
                 <td>{{ tactic.initiative.name }}</td>
-                <td><span class="badge text-bg-light border">{{ tactic.get_status_display }}</span></td>
+                <td>
+                  {% if tactic.status == 'DRAFT' %}
+                    <span class="badge text-bg-secondary">Draft</span>
+                  {% elif tactic.status == 'PLANNED' %}
+                    <span class="badge text-bg-info">Planned</span>
+                  {% elif tactic.status == 'ACTIVE' %}
+                    <span class="badge text-bg-success">Active</span>
+                  {% elif tactic.status == 'COMPLETED' %}
+                    <span class="badge text-bg-primary">Completed</span>
+                  {% else %}
+                    <span class="badge text-bg-light">{{ tactic.get_status_display }}</span>
+                  {% endif %}
+                </td>
                 <td>{{ tactic.start_date|date:"d-M-Y"|default:"-" }} → {{ tactic.end_date|date:"d-M-Y"|default:"-" }}</td>
                 <td class="text-end">${{ tactic.planned_amount|floatformat:2 }}</td>
                 <td class="text-end">${{ tactic.actual_amount|floatformat:2 }}</td>
