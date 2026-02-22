@@ -30,4 +30,11 @@ urlpatterns = [
     path("tactics/new/<int:initiative_id>/", views.tactic_create, name="tactic_create"),
     path("tactics/<int:pk>/edit/", views.tactic_update, name="tactic_update"),
     path("tactics/<int:pk>/delete/", views.tactic_delete, name="tactic_delete"),
+    
+    # Campaigns
+    path("campaigns/", views.campaign_list, name="campaign_list"),
+    path("campaigns/new/", views.campaign_create, name="campaign_create"),
+    path("campaigns/<int:pk>/", views.campaign_detail, name="campaign_detail"),
+    path("campaigns/<int:pk>/edit/", views.campaign_update, name="campaign_update"),
+    path("campaigns/<int:pk>/launch/", views.campaign_launch, name="campaign_launch"),
 ]

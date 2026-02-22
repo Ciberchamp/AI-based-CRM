@@ -206,3 +206,61 @@ class Expense(models.Model):
 
     def __str__(self):
         return f"{self.tactic.name} - {self.name}"
+
+
+#------------------- Campaign block -------------------
+CAMPAIGN_STATUS_CHOICES = [
+    ("DRAFT", "Draft"),
+    ("PLANNED", "Planned"),
+    ("ACTIVE", "Active"),
+    ("COMPLETED", "Completed"),
+]
+
+
+class Campaign(models.Model):
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=CAMPAIGN_STATUS_CHOICES, default="DRAFT")
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    target_list = models.CharField(max_length=255, blank=True, help_text="Name or reference to target list")
+    offer = models.ForeignKey(Offer, on_delete=models.SET_NULL, null=True, blank=True, related_name="campaigns")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    @property
+    def response_count(self):
+        return self.responses.count()
+
+    @property
+    def accepted_count(self):
+        return self.responses.filter(status="ACCEPTED").count()
+
+    @property
+    def rejected_count(self):
+        return self.responses.filter(status="REJECTED").count()
+
+    @property
+    def pending_count(self):
+        return self.responses.filter(status="PENDING").count()
+
+
+class CampaignResponse(models.Model):
+    RESPONSE_STATUS_CHOICES = [
+        ("PENDING", "Pending"),
+        ("ACCEPTED", "Accepted"),
+        ("REJECTED", "Rejected"),
+    ]
+
+    campaign = models.ForeignKey(Campaign, on_delete=models.CASCADE, related_name="responses")
+    contact_name = models.CharField(max_length=255)
+    contact_email = models.EmailField()
+    status = models.CharField(max_length=20, choices=RESPONSE_STATUS_CHOICES, default="PENDING")
+    response_date = models.DateTimeField(auto_now_add=True)
+    notes = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.campaign.name} - {self.contact_name} ({self.status})"

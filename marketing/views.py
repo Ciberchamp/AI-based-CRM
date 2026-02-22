@@ -7,7 +7,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
 from django.contrib import messages
 #------
-from .forms import PlanForm, InitiativeForm, TacticForm, OfferForm, TreatmentForm, LeadForm
+from .forms import PlanForm, InitiativeForm, TacticForm, OfferForm, TreatmentForm, LeadForm, CampaignForm
 from .models import Offer, Plan, Initiative, Tactic, PLAN_STATUS_CHOICES, Treatment, Lead
 
 #---- usha block------------
@@ -362,3 +362,111 @@ def tactic_delete(request, pk):
             "cancel_kwargs": {"pk": plan_id},
         },
     )
+
+
+#------------------- Campaign views -------------------
+from .models import Campaign, CampaignResponse
+
+
+def campaign_list(request):
+    search_query = request.GET.get("search", "")
+    status_filter = request.GET.get("status", "")
+    
+    campaigns = Campaign.objects.all().order_by("-created_at")
+    
+    if search_query:
+        campaigns = campaigns.filter(name__icontains=search_query)
+    
+    if status_filter:
+        campaigns = campaigns.filter(status=status_filter)
+    
+    context = {
+        "campaigns": campaigns,
+        "search_query": search_query,
+        "status_filter": status_filter,
+        "status_choices": [("DRAFT", "Draft"), ("PLANNED", "Planned"), ("ACTIVE", "Active"), ("COMPLETED", "Completed")],
+    }
+    return render(request, "marketing/campaign_list.html", context)
+
+
+def campaign_detail(request, pk):
+    campaign = get_object_or_404(Campaign, pk=pk)
+    responses = campaign.responses.all().order_by("-response_date")
+    
+    # Calculate response stats
+    total_responses = responses.count()
+    accepted_responses = responses.filter(status="ACCEPTED").count()
+    rejected_responses = responses.filter(status="REJECTED").count()
+    pending_responses = responses.filter(status="PENDING").count()
+    
+    context = {
+        "campaign": campaign,
+        "responses": responses,
+        "total_responses": total_responses,
+        "accepted_responses": accepted_responses,
+        "rejected_responses": rejected_responses,
+        "pending_responses": pending_responses,
+    }
+    return render(request, "marketing/campaign_detail.html", context)
+
+
+def campaign_create(request):
+    if request.method == "POST":
+        form = CampaignForm(request.POST)
+        if form.is_valid():
+            campaign = form.save()
+            messages.success(request, "Campaign created successfully.")
+            return redirect("marketing:campaign_detail", pk=campaign.pk)
+    else:
+        form = CampaignForm()
+    
+    context = {"form": form}
+    return render(request, "marketing/campaign_form.html", context)
+
+
+def campaign_update(request, pk):
+    campaign = get_object_or_404(Campaign, pk=pk)
+    if request.method == "POST":
+        form = CampaignForm(request.POST, instance=campaign)
+        if form.is_valid():
+            campaign = form.save()
+            messages.success(request, "Campaign updated successfully.")
+            return redirect("marketing:campaign_detail", pk=campaign.pk)
+    else:
+        form = CampaignForm(instance=campaign)
+    
+    context = {"form": form, "campaign": campaign}
+    return render(request, "marketing/campaign_form.html", context)
+
+
+def campaign_launch(request, pk):
+    campaign = get_object_or_404(Campaign, pk=pk)
+    
+    if request.method == "POST":
+        # Set status to Active
+        campaign.status = "ACTIVE"
+        campaign.save()
+        
+        # Generate dummy response data
+        dummy_names = ["John Smith", "Sarah Johnson", "Michael Brown", "Emily Davis", "Robert Wilson"]
+        dummy_emails = ["john@example.com", "sarah@example.com", "michael@example.com", "emily@example.com", "robert@example.com"]
+        dummy_statuses = ["ACCEPTED", "REJECTED", "PENDING", "ACCEPTED"]
+        
+        # Clear existing responses if any
+        campaign.responses.all().delete()
+        
+        # Create 5 dummy responses
+        for i in range(5):
+            CampaignResponse.objects.create(
+                campaign=campaign,
+                contact_name=dummy_names[i],
+                contact_email=dummy_emails[i],
+                status=dummy_statuses[i % len(dummy_statuses)],
+                notes=f"Response from {dummy_names[i]}"
+            )
+        
+        messages.success(request, f"Campaign '{campaign.name}' launched successfully with 5 sample responses.")
+        return redirect("marketing:campaign_detail", pk=campaign.pk)
+    
+    context = {"campaign": campaign}
+    return render(request, "marketing/campaign_confirm_launch.html", context)

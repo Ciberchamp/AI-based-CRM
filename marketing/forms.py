@@ -1,5 +1,5 @@
 from django import forms
-from .models import Offer, Plan, Initiative, Tactic, PLAN_STATUS_CHOICES, Treatment, Lead
+from .models import Offer, Plan, Initiative, Tactic, PLAN_STATUS_CHOICES, Treatment, Lead, Campaign, CampaignResponse
 
 
 
@@ -160,4 +160,20 @@ class LeadForm(forms.ModelForm):
             "owner": forms.TextInput(attrs={"class": "form-control"}),
             "offer": forms.Select(attrs={"class": "form-select"}),
             "notes": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+        }
+
+
+#------------------- Campaign forms -------------------
+class CampaignForm(forms.ModelForm):
+    class Meta:
+        model = Campaign
+        fields = ["name", "description", "status", "start_date", "end_date", "target_list", "offer"]
+        widgets = {
+            "name": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+            "status": forms.Select(attrs={"class": "form-select"}),
+            "start_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "end_date": forms.DateInput(attrs={"type": "date", "class": "form-control"}),
+            "target_list": forms.TextInput(attrs={"class": "form-control", "placeholder": "Target list name"}),
+            "offer": forms.Select(attrs={"class": "form-select"}),
         }        

@@ -4,9 +4,9 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
     <h2 class="mb-0">
-      {% if tactic %}Edit Tactic{% else %}Create Tactic{% endif %}
+      {% if campaign %}Edit Campaign{% else %}Create Campaign{% endif %}
     </h2>
-    <small class="text-muted">{% if tactic %}Update tactic details{% else %}Create a new tactic for your initiative{% endif %}</small>
+    <small class="text-muted">{% if campaign %}Update campaign details{% else %}Create a new marketing campaign{% endif %}</small>
   </div>
 </div>
 
@@ -16,7 +16,7 @@
       {% csrf_token %}
 
       <div class="mb-3">
-        <label class="form-label">Tactic name</label>
+        <label class="form-label">Campaign name</label>
         {{ form.name }}
         {% if form.name.errors %}
           <div class="text-danger small">{{ form.name.errors|striptags }}</div>
@@ -25,17 +25,17 @@
 
       <div class="row g-3 mb-3">
         <div class="col-md-6">
-          <label class="form-label">Initiative</label>
-          {{ form.initiative }}
-          {% if form.initiative.errors %}
-            <div class="text-danger small">{{ form.initiative.errors|striptags }}</div>
-          {% endif %}
-        </div>
-        <div class="col-md-6">
           <label class="form-label">Status</label>
           {{ form.status }}
           {% if form.status.errors %}
             <div class="text-danger small">{{ form.status.errors|striptags }}</div>
+          {% endif %}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Offer</label>
+          {{ form.offer }}
+          {% if form.offer.errors %}
+            <div class="text-danger small">{{ form.offer.errors|striptags }}</div>
           {% endif %}
         </div>
       </div>
@@ -65,29 +65,20 @@
         </div>
       </div>
 
-      <div class="row g-3 mb-3">
-        <div class="col-md-6">
-          <label class="form-label">Planned Amount</label>
-          {{ form.planned_amount }}
-          {% if form.planned_amount.errors %}
-            <div class="text-danger small">{{ form.planned_amount.errors|striptags }}</div>
-          {% endif %}
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Actual Amount</label>
-          {{ form.actual_amount }}
-          {% if form.actual_amount.errors %}
-            <div class="text-danger small">{{ form.actual_amount.errors|striptags }}</div>
-          {% endif %}
-        </div>
+      <div class="mb-3">
+        <label class="form-label">Target List</label>
+        {{ form.target_list }}
+        {% if form.target_list.errors %}
+          <div class="text-danger small">{{ form.target_list.errors|striptags }}</div>
+        {% endif %}
       </div>
 
       <div class="d-flex justify-content-between">
-        <a href="{% url 'marketing:plan_list' %}" class="btn btn-outline-secondary">
+        <a href="{% url 'marketing:campaign_list' %}" class="btn btn-outline-secondary">
           Cancel
         </a>
         <button type="submit" class="btn btn-primary">
-          Save Tactic
+          {% if campaign %}Update Campaign{% else %}Create Campaign{% endif %}
         </button>
       </div>
     </form>

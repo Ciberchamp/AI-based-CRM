@@ -20,7 +20,7 @@
       searchInput.addEventListener('input', function() {
         clearTimeout(searchTimeout);
         searchTimeout = setTimeout(function() {
-          document.getElementById('plan-filter-form').submit();
+          document.getElementById('campaign-filter-form').submit();
         }, 300);
       });
     }
@@ -40,12 +40,12 @@
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
   <div>
-    <h2 class="mb-0">Plans</h2>
-    <small class="text-muted">Strategic marketing plans and budget rollups.</small>
+    <h2 class="mb-0">Campaigns</h2>
+    <small class="text-muted">Manage marketing campaigns and track responses.</small>
   </div>
   <div class="d-flex gap-2">
-    <a href="{% url 'marketing:plan_create' %}" class="btn btn-primary btn-sm">
-      Create Plan
+    <a href="{% url 'marketing:campaign_create' %}" class="btn btn-primary btn-sm">
+      Create Campaign
     </a>
     <button class="btn btn-outline-secondary btn-sm" disabled>Import</button>
     <button class="btn btn-outline-secondary btn-sm" disabled>Export</button>
@@ -56,8 +56,8 @@
   <div class="card-body">
     <div class="d-flex justify-content-between mb-3">
       <div class="d-flex gap-2">
-        <form method="get" id="plan-filter-form" class="d-flex gap-2">
-          <input type="text" id="search-input" name="search" class="form-control form-control-sm" placeholder="Search plans..." value="{{ search_query }}" style="width: 240px;">
+        <form method="get" id="campaign-filter-form" class="d-flex gap-2">
+          <input type="text" id="search-input" name="search" class="form-control form-control-sm" placeholder="Search campaigns..." value="{{ search_query }}" style="width: 240px;">
           <select name="status" class="form-select form-select-sm" style="width: 160px;" onchange="this.form.submit()">
             <option value="">All statuses</option>
             {% for value, label in status_choices %}
@@ -72,7 +72,7 @@
       </div>
     </div>
 
-    {% if plans %}
+    {% if campaigns %}
       <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
           <thead class="table-light">
@@ -81,41 +81,39 @@
               <th scope="col">Status</th>
               <th scope="col">Start Date</th>
               <th scope="col">End Date</th>
-              <th scope="col" class="text-end">Total Budget</th>
-              <th scope="col" class="text-end">Planned</th>
-              <th scope="col" class="text-end">Actual</th>
+              <th scope="col">Target List</th>
+              <th scope="col" class="text-end">Responses</th>
               <th scope="col" class="text-end">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {% for plan in plans %}
-              <tr data-url="{% url 'marketing:plan_detail' plan.pk %}">
+            {% for campaign in campaigns %}
+              <tr data-url="{% url 'marketing:campaign_detail' campaign.pk %}">
                 <td>
-                  <a href="{% url 'marketing:plan_detail' plan.pk %}" class="fw-semibold text-decoration-none">
-                    {{ plan.name }}
+                  <a href="{% url 'marketing:campaign_detail' campaign.pk %}" class="fw-semibold text-decoration-none">
+                    {{ campaign.name }}
                   </a>
                 </td>
                 <td>
-                  {% if plan.status == 'draft' %}
+                  {% if campaign.status == 'DRAFT' %}
                     <span class="badge text-bg-secondary">Draft</span>
-                  {% elif plan.status == 'planned' %}
+                  {% elif campaign.status == 'PLANNED' %}
                     <span class="badge text-bg-info">Planned</span>
-                  {% elif plan.status == 'active' %}
+                  {% elif campaign.status == 'ACTIVE' %}
                     <span class="badge text-bg-success">Active</span>
-                  {% elif plan.status == 'completed' %}
+                  {% elif campaign.status == 'COMPLETED' %}
                     <span class="badge text-bg-primary">Completed</span>
                   {% else %}
-                    <span class="badge text-bg-light">{{ plan.get_status_display }}</span>
+                    <span class="badge text-bg-light">{{ campaign.get_status_display }}</span>
                   {% endif %}
                 </td>
-                <td class="text-muted">{{ plan.start_date|date:"d-M-Y"|default:"-" }}</td>
-                <td class="text-muted">{{ plan.end_date|date:"d-M-Y"|default:"-" }}</td>
-                <td class="text-end text-muted">${{ plan.total_budget|floatformat:2 }}</td>
-                <td class="text-end text-muted">${{ plan.initiatives_planned_total|floatformat:2 }}</td>
-                <td class="text-end text-muted">${{ plan.initiatives_actual_total|floatformat:2 }}</td>
+                <td class="text-muted">{{ campaign.start_date|date:"d-M-Y"|default:"-" }}</td>
+                <td class="text-muted">{{ campaign.end_date|date:"d-M-Y"|default:"-" }}</td>
+                <td class="text-muted">{{ campaign.target_list|truncatechars:40 }}</td>
+                <td class="text-end text-muted">{{ campaign.response_count }}</td>
                 <td class="text-end">
                   <div class="btn-group btn-group-sm" onclick="event.stopPropagation();">
-                    <a href="{% url 'marketing:plan_detail' plan.pk %}" class="btn btn-outline-primary">
+                    <a href="{% url 'marketing:campaign_detail' campaign.pk %}" class="btn btn-outline-primary">
                       Open
                     </a>
                     <button class="btn btn-outline-secondary" disabled>Clone</button>
@@ -128,7 +126,7 @@
         </table>
       </div>
     {% else %}
-      <p class="text-muted mb-0">No plans found. Create your first plan to get started.</p>
+      <p class="text-muted mb-0">No campaigns found. Create your first campaign to get started.</p>
     {% endif %}
   </div>
 </div>

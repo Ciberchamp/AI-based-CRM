@@ -1,0 +1,271 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+  .nav-tabs .nav-link {
+    color: #6b7280;
+    border: none;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s ease;
+  }
+  
+  .nav-tabs .nav-link:hover {
+    color: #374151;
+    border-bottom-color: #e5e7eb;
+  }
+  
+  .nav-tabs .nav-link.active {
+    color: #1f2937;
+    border-bottom-color: #3b82f6;
+    background: none;
+  }
+  
+  .tab-content {
+    padding: 1.5rem 0;
+  }
+  
+  .response-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+  
+  .response-accepted {
+    background-color: #dcfce7;
+    color: #166534;
+  }
+  
+  .response-rejected {
+    background-color: #fee2e2;
+    color: #991b1b;
+  }
+  
+  .response-pending {
+    background-color: #fef3c7;
+    color: #92400e;
+  }
+  
+  .stat-card {
+    padding: 1.5rem;
+    background: #f9fafb;
+    border-radius: 0.5rem;
+    text-align: center;
+    border: 1px solid #e5e7eb;
+  }
+  
+  .stat-card h4 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+  }
+  
+  .stat-card p {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h2 class="mb-1">{{ campaign.name }}</h2>
+    <div class="d-flex gap-3 align-items-center">
+      {% if campaign.status == 'DRAFT' %}
+        <span class="badge text-bg-secondary">Draft</span>
+      {% elif campaign.status == 'PLANNED' %}
+        <span class="badge text-bg-info">Planned</span>
+      {% elif campaign.status == 'ACTIVE' %}
+        <span class="badge text-bg-success">Active</span>
+      {% elif campaign.status == 'COMPLETED' %}
+        <span class="badge text-bg-primary">Completed</span>
+      {% endif %}
+      <small class="text-muted">Created {{ campaign.created_at|date:"d-M-Y H:i" }}</small>
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    {% if campaign.status != 'ACTIVE' and campaign.status != 'COMPLETED' %}
+      <a href="{% url 'marketing:campaign_launch' campaign.pk %}" class="btn btn-success">
+        Launch Campaign
+      </a>
+    {% endif %}
+    <a href="{% url 'marketing:campaign_update' campaign.pk %}" class="btn btn-primary">
+      Edit
+    </a>
+  </div>
+</div>
+
+<!-- Tabs -->
+<ul class="nav nav-tabs border-bottom" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">
+      Overview
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="target-lists-tab" data-bs-toggle="tab" data-bs-target="#target-lists" type="button" role="tab">
+      Target Lists
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="offers-tab" data-bs-toggle="tab" data-bs-target="#offers" type="button" role="tab">
+      Offers & Treatments
+    </button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="responses-tab" data-bs-toggle="tab" data-bs-target="#responses" type="button" role="tab">
+      Responses <span class="badge bg-light text-dark ms-2">{{ total_responses }}</span>
+    </button>
+  </li>
+</ul>
+
+<!-- Tab Content -->
+<div class="tab-content">
+  <!-- Overview Tab -->
+  <div class="tab-pane fade show active" id="overview" role="tabpanel">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h4>{{ total_responses }}</h4>
+              <p>Total Responses</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h4 style="color: #16a34a;">{{ accepted_responses }}</h4>
+              <p>Accepted</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h4 style="color: #dc2626;">{{ rejected_responses }}</h4>
+              <p>Rejected</p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="stat-card">
+              <h4 style="color: #b45309;">{{ pending_responses }}</h4>
+              <p>Pending</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-6">
+            <h5 class="mb-3">Campaign Details</h5>
+            <table class="table table-sm">
+              <tbody>
+                <tr>
+                  <th>Status</th>
+                  <td>{{ campaign.get_status_display }}</td>
+                </tr>
+                <tr>
+                  <th>Start Date</th>
+                  <td>{{ campaign.start_date|date:"d-M-Y"|default:"-" }}</td>
+                </tr>
+                <tr>
+                  <th>End Date</th>
+                  <td>{{ campaign.end_date|date:"d-M-Y"|default:"-" }}</td>
+                </tr>
+                <tr>
+                  <th>Target List</th>
+                  <td>{{ campaign.target_list|default:"-" }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="col-md-6">
+            <h5 class="mb-3">Description</h5>
+            <p class="text-muted">{{ campaign.description|default:"No description provided" }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Target Lists Tab -->
+  <div class="tab-pane fade" id="target-lists" role="tabpanel">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">Target List Information</h5>
+        <div class="alert alert-info" role="alert">
+          <strong>Target List:</strong> {{ campaign.target_list|default:"No target list specified" }}
+        </div>
+        <p class="text-muted">Target list management will be available in the Lists module.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offers & Treatments Tab -->
+  <div class="tab-pane fade" id="offers" role="tabpanel">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">Associated Offer</h5>
+        {% if campaign.offer %}
+          <div class="alert alert-light" role="alert">
+            <strong>Offer:</strong> <a href="{% url 'marketing:offer_detail' campaign.offer.pk %}">{{ campaign.offer.name }}</a>
+          </div>
+          <p class="text-muted">{{ campaign.offer.description }}</p>
+        {% else %}
+          <p class="text-muted">No offer associated with this campaign.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Responses Tab -->
+  <div class="tab-pane fade" id="responses" role="tabpanel">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3">Campaign Responses</h5>
+        {% if responses %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Contact Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th>Response Date</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for response in responses %}
+                  <tr>
+                    <td class="fw-semibold">{{ response.contact_name }}</td>
+                    <td class="text-muted">{{ response.contact_email }}</td>
+                    <td>
+                      {% if response.status == 'ACCEPTED' %}
+                        <span class="response-badge response-accepted">Accepted</span>
+                      {% elif response.status == 'REJECTED' %}
+                        <span class="response-badge response-rejected">Rejected</span>
+                      {% elif response.status == 'PENDING' %}
+                        <span class="response-badge response-pending">Pending</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-muted">{{ response.response_date|date:"d-M-Y H:i" }}</td>
+                    <td class="text-muted">{{ response.notes|truncatechars:50 }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted">No responses yet. Launch the campaign to generate sample responses.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-4">
+  <a href="{% url 'marketing:campaign_list' %}" class="btn btn-outline-secondary">Back to Campaigns</a>
+</div>
+{% endblock %}
