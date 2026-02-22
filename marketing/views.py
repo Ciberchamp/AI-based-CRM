@@ -3,11 +3,14 @@ from datetime import date, datetime
 
 from django.db.models import Sum
 from django.shortcuts import render, get_object_or_404, redirect
+#  usha block
+from django.urls import reverse
+from django.contrib import messages
+#------
+from .forms import PlanForm, InitiativeForm, TacticForm, OfferForm, TreatmentForm, LeadForm
+from .models import Offer, Plan, Initiative, Tactic, PLAN_STATUS_CHOICES, Treatment, Lead
 
-from .forms import PlanForm, InitiativeForm, TacticForm
-from .models import Offer, Plan, Initiative, Tactic, PLAN_STATUS_CHOICES
-
-
+#---- usha block------------
 def offer_list(request):
     offers = Offer.objects.filter(is_active=True).order_by("-created_at")
     context = {"offers": offers}
@@ -23,6 +26,133 @@ def offer_detail(request, pk):
     }
     return render(request, "marketing/offer_detail.html", context)
 
+def offer_create(request):
+    if request.method == "POST":
+        form = OfferForm(request.POST)
+        if form.is_valid():
+            offer = form.save()
+            messages.success(request, "Offer created successfully.")
+            return redirect("marketing:offer_detail", pk=offer.pk)
+    else:
+        form = OfferForm()
+
+    context = {"form": form}
+    return render(request, "marketing/offer_form.html", context)
+
+
+def offer_update(request, pk):
+    offer = get_object_or_404(Offer, pk=pk)
+    if request.method == "POST":
+        form = OfferForm(request.POST, instance=offer)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Offer updated successfully.")
+            return redirect("marketing:offer_detail", pk=offer.pk)
+    else:
+        form = OfferForm(instance=offer)
+
+    context = {"form": form, "offer": offer}
+    return render(request, "marketing/offer_form.html", context)
+
+
+def treatment_create(request, offer_pk):
+    offer = get_object_or_404(Offer, pk=offer_pk)
+    if request.method == "POST":
+        form = TreatmentForm(request.POST)
+        if form.is_valid():
+            treatment = form.save(commit=False)
+            treatment.offer = offer
+            treatment.save()
+            messages.success(request, "Treatment created successfully.")
+            return redirect("marketing:offer_detail", pk=offer.pk)
+    else:
+        form = TreatmentForm()
+
+    context = {"form": form, "offer": offer}
+    return render(request, "marketing/treatment_form.html", context)
+
+
+def treatment_preview(request, pk):
+    treatment = get_object_or_404(Treatment, pk=pk)
+
+    # Fake contact data for preview (no DB dependency)
+    sample_contact = {
+        "first_name": "Asha",
+        "last_name": "Nair",
+        "email": "asha@example.com",
+        "city": "Bengaluru",
+    }
+
+    # Naive placeholder replacement for now
+    body_preview = treatment.body
+    for key, value in sample_contact.items():
+        body_preview = body_preview.replace(f"{{{{{key}}}}}", value)
+
+    context = {
+        "treatment": treatment,
+        "body_preview": body_preview,
+        "sample_contact": sample_contact,
+    }
+    return render(request, "marketing/treatment_preview.html", context)
+
+def lead_list(request):
+    leads = Lead.objects.order_by("-created_at")
+
+    context = {
+        "leads": leads,
+    }
+    return render(request, "marketing/lead_list.html", context)
+
+
+def lead_detail(request, pk):
+    lead = get_object_or_404(Lead, pk=pk)
+    context = {
+        "lead": lead,
+    }
+    return render(request, "marketing/lead_detail.html", context)
+
+
+def lead_create(request):
+    if request.method == "POST":
+        form = LeadForm(request.POST)
+        if form.is_valid():
+            lead = form.save()
+            messages.success(request, "Lead created successfully.")
+            return redirect("marketing:lead_detail", pk=lead.pk)
+    else:
+        form = LeadForm(initial={"owner": "Unassigned"})
+
+    context = {"form": form}
+    return render(request, "marketing/lead_form.html", context)
+
+
+def lead_update(request, pk):
+    lead = get_object_or_404(Lead, pk=pk)
+    if request.method == "POST":
+        form = LeadForm(request.POST, instance=lead)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Lead updated successfully.")
+            return redirect("marketing:lead_detail", pk=lead.pk)
+    else:
+        form = LeadForm(instance=lead)
+
+    context = {"form": form, "lead": lead}
+    return render(request, "marketing/lead_form.html", context)
+
+
+def lead_delete(request, pk):
+    lead = get_object_or_404(Lead, pk=pk)
+    if request.method == "POST":
+        lead.delete()
+        messages.success(request, "Lead deleted.")
+        return redirect("marketing:lead_list")
+    context = {"lead": lead}
+    return render(request, "marketing/lead_confirm_delete.html", context)
+
+
+
+#----------------------------
 
 def plan_list(request):
     plans = Plan.objects.order_by("-created_at")

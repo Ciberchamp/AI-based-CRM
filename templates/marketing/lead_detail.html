@@ -1,0 +1,171 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-0">{{ lead.full_name }}</h2>
+    <small class="text-muted">
+      {% if lead.job_title %}{{ lead.job_title }}{% endif %}
+      {% if lead.company %} at {{ lead.company }}{% endif %}
+    </small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{% url 'marketing:lead_update' lead.pk %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+    <button class="btn btn-outline-success btn-sm" disabled>Convert</button>
+    <div class="btn-group btn-group-sm">
+      <button class="btn btn-outline-secondary dropdown-toggle" disabled>More</button>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Left column -->
+  <div class="col-lg-8">
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">Lead overview</h6>
+
+        <div class="row small">
+          <div class="col-md-4 mb-2">
+            <span class="text-muted">Status</span><br>
+            {% if lead.status == "new" %}
+              <span class="badge text-bg-primary">New</span>
+            {% elif lead.status == "working" %}
+              <span class="badge text-bg-info text-dark">Working</span>
+            {% elif lead.status == "qualified" %}
+              <span class="badge text-bg-success">Qualified</span>
+            {% else %}
+              <span class="badge text-bg-secondary">Disqualified</span>
+            {% endif %}
+          </div>
+          <div class="col-md-4 mb-2">
+            <span class="text-muted">Rating</span><br>
+            {% if lead.rating == "hot" %}
+              <span class="badge text-bg-danger">Hot</span>
+            {% elif lead.rating == "warm" %}
+              <span class="badge text-bg-warning text-dark">Warm</span>
+            {% else %}
+              <span class="badge text-bg-secondary">Cold</span>
+            {% endif %}
+          </div>
+          <div class="col-md-4 mb-2">
+            <span class="text-muted">Source</span><br>
+            <span>{{ lead.get_source_display }}</span>
+          </div>
+        </div>
+
+        <hr>
+
+        <div class="row small">
+          <div class="col-md-4 mb-2">
+            <span class="text-muted">Company</span><br>
+            <span>{{ lead.company|default:"-" }}</span>
+          </div>
+          <div class="col-md-4 mb-2">
+            <span class="text-muted">Industry</span><br>
+            <span>{{ lead.industry|default:"-" }}</span>
+          </div>
+          <div class="col-md-4 mb-2">
+            <span class="text-muted">Company size</span><br>
+            <span>{{ lead.company_size|default:"-" }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">Contact information</h6>
+
+        <div class="row small">
+          <div class="col-md-4 mb-2">
+            <span class="text-muted">Email</span><br>
+            <span>{{ lead.email|default:"-" }}</span>
+          </div>
+          <div class="col-md-4 mb-2">
+            <span class="text-muted">Phone</span><br>
+            <span>{{ lead.phone|default:"-" }}</span>
+          </div>
+          <div class="col-md-4 mb-2">
+            <span class="text-muted">Location</span><br>
+            <span>
+              {% if lead.city %}{{ lead.city }}{% endif %}
+              {% if lead.country %}, {{ lead.country }}{% endif %}
+              {% if not lead.city and not lead.country %}-{% endif %}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">Notes</h6>
+        <div class="small" style="min-height: 80px;">
+          {{ lead.notes|default:"No notes yet."|linebreaksbr }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right column -->
+  <div class="col-lg-4">
+    <div class="card shadow-sm mb-3">
+      <div class="card-body small">
+        <h6 class="card-subtitle mb-2 text-muted">Offer & routing</h6>
+        <div class="mb-2">
+          <span class="text-muted">Related offer</span><br>
+          {% if lead.offer %}
+            <a href="{% url 'marketing:offer_detail' lead.offer.pk %}" class="text-decoration-none">
+              {{ lead.offer.name }}
+            </a>
+          {% else %}
+            <span>-</span>
+          {% endif %}
+        </div>
+        <div class="mb-2">
+          <span class="text-muted">Owner</span><br>
+          <span>{{ lead.owner|default:"Unassigned" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm mb-3">
+      <div class="card-body small">
+        <h6 class="card-subtitle mb-2 text-muted">System information</h6>
+        <div class="mb-2">
+          <span class="text-muted">Lead ID</span><br>
+          <span>{{ lead.id }}</span>
+        </div>
+        <div class="mb-2">
+          <span class="text-muted">Created at</span><br>
+          <span>{{ lead.created_at|date:"Y-m-d H:i" }}</span>
+        </div>
+        <div class="mb-2">
+          <span class="text-muted">Updated at</span><br>
+          <span>{{ lead.updated_at|date:"Y-m-d H:i" }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body small">
+        <h6 class="card-subtitle mb-2 text-muted">Actions</h6>
+        <a href="{% url 'marketing:lead_update' lead.pk %}" class="btn btn-sm btn-outline-primary mb-2 w-100">
+          Edit lead
+        </a>
+        <form method="post" action="{% url 'marketing:lead_delete' lead.pk %}">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+            Delete lead
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <a href="{% url 'marketing:lead_list' %}" class="text-decoration-none">&larr; Back to leads</a>
+</div>
+{% endblock %}

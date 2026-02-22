@@ -8,7 +8,7 @@ PLAN_STATUS_CHOICES = [
     ("COMPLETED", "Completed"),
 ]
 
-
+#------------------- usha block -------------------
 class Offer(models.Model):
     STATUS_CHOICES = [
         ("DRAFT", "Draft"),
@@ -50,6 +50,80 @@ class Treatment(models.Model):
 
     def __str__(self):
         return f"{self.offer.code} - {self.name} ({self.channel})"
+
+class Lead(models.Model):
+    STATUS_CHOICES = [
+        ("new", "New"),
+        ("working", "Working"),
+        ("qualified", "Qualified"),
+        ("disqualified", "Disqualified"),
+    ]
+
+    SOURCE_CHOICES = [
+        ("web", "Web form"),
+        ("campaign", "Campaign"),
+        ("referral", "Referral"),
+        ("partner", "Partner"),
+        ("other", "Other"),
+    ]
+
+    RATING_CHOICES = [
+        ("hot", "Hot"),
+        ("warm", "Warm"),
+        ("cold", "Cold"),
+    ]
+
+    first_name = models.CharField(max_length=100, blank=True)
+    last_name = models.CharField(max_length=100)
+    job_title = models.CharField(max_length=150, blank=True)
+
+    company = models.CharField(max_length=200, blank=True)
+    industry = models.CharField(max_length=150, blank=True)
+    company_size = models.CharField(
+        max_length=50,
+        blank=True,
+        help_text="e.g. 1-10, 11-50, 51-200",
+    )
+
+    email = models.EmailField(blank=True)
+    phone = models.CharField(max_length=50, blank=True)
+
+    city = models.CharField(max_length=100, blank=True)
+    country = models.CharField(max_length=100, blank=True)
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="new")
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, default="web")
+    rating = models.CharField(max_length=20, choices=RATING_CHOICES, default="warm")
+
+    owner = models.CharField(
+        max_length=100,
+        blank=True,
+        help_text="Sales owner, e.g. Usha or team name",
+    )
+
+    offer = models.ForeignKey(
+        Offer,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="leads",
+    )
+
+    notes = models.TextField(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def full_name(self):
+        if self.first_name:
+            return f"{self.first_name} {self.last_name}"
+        return self.last_name
+
+    def __str__(self):
+        return self.full_name()
+#------------------- usha block ends -------------------
+
+
 
 
 class Plan(models.Model):

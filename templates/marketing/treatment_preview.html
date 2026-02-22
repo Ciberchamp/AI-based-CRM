@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-0">Preview Treatment</h2>
+    <small class="text-muted">
+      {{ treatment.offer.name }} &raquo; {{ treatment.name }} ({{ treatment.channel|title }})
+    </small>
+  </div>
+  <div>
+    <a href="{% url 'marketing:offer_detail' treatment.offer.pk %}" class="btn btn-outline-secondary btn-sm">
+      Back to Offer
+    </a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-4">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">Sample contact</h6>
+        <ul class="list-unstyled small mb-0">
+          <li><strong>Name:</strong> {{ sample_contact.first_name }} {{ sample_contact.last_name }}</li>
+          <li><strong>Email:</strong> {{ sample_contact.email }}</li>
+          <li><strong>City:</strong> {{ sample_contact.city }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">Rendered content</h6>
+        <p><strong>Subject:</strong> {{ treatment.subject }}</p>
+        <div class="border rounded p-3 bg-light" style="white-space: pre-wrap;">
+          {{ body_preview }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

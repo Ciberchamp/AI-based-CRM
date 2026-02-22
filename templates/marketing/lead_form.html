@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-0">
+      {% if lead %}Edit Lead{% else %}New Lead{% endif %}
+    </h2>
+    <small class="text-muted">Capture lead details for routing and follow-up.</small>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <h6 class="text-uppercase text-muted small mb-2">Lead basics</h6>
+      <div class="row g-3 mb-3">
+        <div class="col-md-4">
+          <label class="form-label">First name</label>
+          {{ form.first_name }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Last name<span class="text-danger">*</span></label>
+          {{ form.last_name }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Job title</label>
+          {{ form.job_title }}
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Company</label>
+          {{ form.company }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Industry</label>
+          {{ form.industry }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Company size</label>
+          {{ form.company_size }}
+        </div>
+      </div>
+
+      <h6 class="text-uppercase text-muted small mb-2">Contact details</h6>
+      <div class="row g-3 mb-4">
+        <div class="col-md-4">
+          <label class="form-label">Email</label>
+          {{ form.email }}
+        </div>
+        <div class="col-md-4">
+          <label class="form-label">Phone</label>
+          {{ form.phone }}
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">City</label>
+          {{ form.city }}
+        </div>
+        <div class="col-md-2">
+          <label class="form-label">Country</label>
+          {{ form.country }}
+        </div>
+      </div>
+
+      <h6 class="text-uppercase text-muted small mb-2">Sales context</h6>
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <label class="form-label">Status</label>
+          {{ form.status }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Rating</label>
+          {{ form.rating }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Source</label>
+          {{ form.source }}
+        </div>
+        <div class="col-md-3">
+          <label class="form-label">Owner</label>
+          {{ form.owner }}
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-6">
+          <label class="form-label">Related offer</label>
+          {{ form.offer }}
+        </div>
+      </div>
+
+      <h6 class="text-uppercase text-muted small mb-2">Notes</h6>
+      <div class="mb-4">
+        {{ form.notes }}
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <a href="{% url 'marketing:lead_list' %}" class="btn btn-outline-secondary">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary">
+          Save Lead
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div>
+    <h2 class="mb-0">Add Treatment</h2>
+    <small class="text-muted">
+      Configure a channel-specific treatment for offer: <strong>{{ offer.name }}</strong>
+    </small>
+  </div>
+</div>
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      <div class="mb-3">
+        <label class="form-label">Treatment name</label>
+        {{ form.name }}
+        {% if form.name.errors %}
+          <div class="text-danger small">{{ form.name.errors|striptags }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Channel</label>
+        {{ form.channel }}
+        {% if form.channel.errors %}
+          <div class="text-danger small">{{ form.channel.errors|striptags }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Subject / Title</label>
+        {{ form.subject }}
+        {% if form.subject.errors %}
+          <div class="text-danger small">{{ form.subject.errors|striptags }}</div>
+        {% endif %}
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Body</label>
+        {{ form.body }}
+        {% if form.body.errors %}
+          <div class="text-danger small">{{ form.body.errors|striptags }}</div>
+        {% endif %}
+        <div class="form-text">
+          You can use placeholders like <code>{{ "{{first_name" }}}}</code>, <code>{{ "{{city" }}}}</code>.
+        </div>
+      </div>
+
+      <div class="form-check mb-3">
+        {{ form.is_active }}
+        <label class="form-check-label">Active</label>
+      </div>
+
+      <div class="d-flex justify-content-between">
+        <a href="{% url 'marketing:offer_detail' offer.pk %}" class="btn btn-outline-secondary">
+          Cancel
+        </a>
+        <button type="submit" class="btn btn-primary">
+          Save Treatment
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
