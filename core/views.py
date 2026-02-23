@@ -1,6 +1,8 @@
 import subprocess
 import os
 from pathlib import Path
+from marketing.models import Plan, Campaign, Lead
+from django.db.models import Sum
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -69,13 +71,20 @@ def signup_view(request):
     return render(request, "auth/signup.html")
 
 
-@login_required(login_url="login")
 def dashboard(request):
+    total_plans = Plan.objects.filter(status="ACTIVE").count()
+    total_campaigns = Campaign.objects.filter(status="ACTIVE").count()
+    total_leads = Lead.objects.count()
+    total_budget = (
+    Plan.objects.aggregate(Sum("total_budget"))["total_budget__sum"] or 0
+)
+
+
     context = {
-        "total_plans": 0,
-        "total_campaigns": 0,
-        "total_leads": 0,
-        "total_budget": 0,
+        "total_plans": total_plans,
+        "total_campaigns": total_campaigns,
+        "total_leads": total_leads,
+        "total_budget": total_budget,
     }
     return render(request, "dashboard.html", context)
 
