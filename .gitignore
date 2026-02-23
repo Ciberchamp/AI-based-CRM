@@ -3,3 +3,4 @@ __pycache__/
 *.pyc
 .env
 Prediction_app/
+prediction models/
