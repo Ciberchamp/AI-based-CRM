@@ -1,8 +1,12 @@
+import subprocess
+import os
+from pathlib import Path
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
+from django.http import JsonResponse
 
 
 def home(request):
@@ -80,3 +84,81 @@ def dashboard(request):
 def logout_view(request):
     logout(request)
     return redirect("login")
+
+
+@login_required(login_url="login")
+def launch_claim_cost_prediction(request):
+    """Launch Claim Cost Prediction Streamlit dashboard"""
+    base_dir = Path(__file__).resolve().parent.parent
+    model_dir = base_dir / "prediction models" / "claim_cost_prediction"
+    
+    try:
+        # Launch Streamlit app in background
+        subprocess.Popen(
+            ["streamlit", "run", "app.py", "--server.port", "8501"],
+            cwd=str(model_dir),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        return JsonResponse({
+            "success": True,
+            "url": "http://localhost:8501",
+            "message": "Claim Cost Prediction dashboard is starting..."
+        })
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+
+@login_required(login_url="login")
+def launch_rebate_prediction(request):
+    """Launch Rebate Prediction Streamlit dashboard"""
+    base_dir = Path(__file__).resolve().parent.parent
+    model_dir = base_dir / "prediction models" / "rebate_prediction" / "dashboard"
+    
+    try:
+        # Launch Streamlit app in background
+        subprocess.Popen(
+            ["streamlit", "run", "app.py", "--server.port", "8502"],
+            cwd=str(model_dir),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        return JsonResponse({
+            "success": True,
+            "url": "http://localhost:8502",
+            "message": "Rebate Prediction dashboard is starting..."
+        })
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
+
+
+@login_required(login_url="login")
+def launch_tactic_efficiency(request):
+    """Launch Tactic Efficiency Streamlit dashboard"""
+    base_dir = Path(__file__).resolve().parent.parent
+    model_dir = base_dir / "prediction models" / "tactic_efficiency_project"
+    
+    try:
+        # Launch Streamlit app in background
+        subprocess.Popen(
+            ["streamlit", "run", "app.py", "--server.port", "8503"],
+            cwd=str(model_dir),
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        return JsonResponse({
+            "success": True,
+            "url": "http://localhost:8503",
+            "message": "Tactic Efficiency dashboard is starting..."
+        })
+    except Exception as e:
+        return JsonResponse({
+            "success": False,
+            "error": str(e)
+        }, status=500)
