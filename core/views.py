@@ -70,7 +70,7 @@ def signup_view(request):
     
     return render(request, "auth/signup.html")
 
-
+@login_required
 def dashboard(request):
     total_plans = Plan.objects.filter(status="ACTIVE").count()
     total_campaigns = Campaign.objects.filter(status="ACTIVE").count()
