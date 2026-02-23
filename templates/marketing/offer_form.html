@@ -24,6 +24,16 @@
       </div>
 
       <div class="mb-3">
+        <label class="form-label">Offer code</label>
+        {{ form.code }}
+        {% if form.code.errors %}
+          <div class="text-danger small">{{ form.code.errors|striptags }}</div>
+        {% endif %}
+      </div>
+
+
+
+      <div class="mb-3">
         <label class="form-label">Description</label>
         {{ form.description }}
         {% if form.description.errors %}

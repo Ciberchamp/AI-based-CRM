@@ -77,11 +77,15 @@ class TacticForm(forms.ModelForm):
 class OfferForm(forms.ModelForm):
     class Meta:
         model = Offer
-        fields = ["name", "description", "is_active"]
+        fields = ["name", "code", "description", "is_active"]
         widgets = {
             "name": forms.TextInput(attrs={
                 "class": "form-control",
                 "placeholder": "Offer name",
+            }),
+            "code": forms.TextInput(attrs={
+                "class": "form-control",
+                "placeholder": "Offer code",
             }),
             "description": forms.Textarea(attrs={
                 "class": "form-control",

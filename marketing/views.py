@@ -12,7 +12,7 @@ from .models import Offer, Plan, Initiative, Tactic, PLAN_STATUS_CHOICES, Treatm
 
 #---- usha block------------
 def offer_list(request):
-    offers = Offer.objects.filter(is_active=True).order_by("-created_at")
+    offers = Offer.objects.all().order_by("-created_at")
     context = {"offers": offers}
     return render(request, "marketing/offer_list.html", context)
 
